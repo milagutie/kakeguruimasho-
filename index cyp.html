@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Passatempo - Incontri Ironici</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, 
+                #ff0000 0%, 
+                #ff7f00 25%, 
+                #ffff00 50%, 
+                #00ff00 75%, 
+                #0000ff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientScroll 3s linear infinite;
+            text-shadow: none;
+            letter-spacing: 2px;
+        }
+
+        @keyframes gradientScroll {
+            0% {
+                background-position: 0% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        .subtitle-box {
+            background: linear-gradient(135deg, #ff0000 0%, #ff0000 100%);
+            border: 3px solid #ffff00;
+            padding: 20px;
+            display: inline-block;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5), 0 0 40px rgba(255, 255, 0, 0.3);
+        }
+
+        .subtitle-box p {
+            color: #ffff00;
+            font-size: 1.2em;
+            text-shadow: 3px 3px 0 #000, 6px 6px 0 rgba(255, 255, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 60px;
+        }
+
+        .card-wrapper {
+            perspective: 1000px;
+            width: 180px;
+            height: 280px;
+        }
+
+        .flip-card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card-wrapper.flipped .flip-card {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #ffff00;
+            font-weight: bold;
+        }
+
+        .flip-card-front {
+            background: linear-gradient(135deg, #cc0000 0%, #ff0000 100%);
+            box-shadow: 
+                inset 0 0 10px rgba(255, 255, 0, 0.3),
+                0 0 20px rgba(255, 0, 0, 0.5),
+                0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .flip-card-front::before {
+            content: "🂠";
+            font-size: 8em;
+            opacity: 0.8;
+        }
+
+        .flip-card-back {
+            background: #1a1a1a;
+            transform: rotateY(180deg);
+            box-shadow: 
+                inset 0 0 15px rgba(255, 255, 0, 0.2),
+                0 0 20px rgba(255, 255, 0, 0.3),
+                0 10px 30px rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .card-title {
+            color: #ffff00;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .card-emoji {
+            font-size: 3em;
+            margin: 10px 0;
+        }
+
+        .card-description {
+            color: #00ff00;
+            font-size: 0.7em;
+            line-height: 1.3;
+        }
+
+        .jackpot-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+        }
+
+        .jackpot-container.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            pointer-events: all;
+        }
+
+        .jackpot-text {
+            font-size: 4em;
+            color: #ffff00;
+            animation: jackpotBounce 0.5s infinite;
+            text-shadow: 
+                0 0 10px #ffff00,
+                0 0 20px #ff0000,
+                0 0 30px #ff6600;
+        }
+
+        @keyframes jackpotBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes cry {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(20px); opacity: 0; }
+        }
+
+        @keyframes cryEmoji {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.95); }
+        }
+
+        @keyframes heartBreak {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            10% { transform: rotate(-2deg) scale(1); }
+            20% { transform: rotate(2deg) scale(0.98); }
+            30% { transform: rotate(-3deg) scale(1); }
+            40% { transform: rotate(3deg) scale(0.96); }
+            50% { transform: rotate(0deg) scale(0.94); }
+            60% { transform: rotate(-2deg) scale(0.96); }
+            70% { transform: rotate(2deg) scale(0.98); }
+            80% { transform: rotate(-1deg) scale(1); }
+            90% { transform: rotate(1deg) scale(0.99); }
+        }
+
+        @keyframes tearFall {
+            0% { 
+                transform: translateY(0) translateX(0); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(50px) translateX(10px); 
+                opacity: 0; 
+            }
+        }
+
+        .emoji-crying {
+            animation: cryEmoji 1s ease-in-out infinite;
+            position: relative;
+        }
+
+        .emoji-breaking {
+            animation: heartBreak 0.6s ease-in-out infinite;
+        }
+
+        .tear {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            pointer-events: none;
+            font-size: 0.5em;
+            animation: tearFall 1.5s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .card-wrapper.flipped .tear {
+            opacity: 1;
+        }
+
+        .final-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            color: #ffff00;
+            text-align: center;
+            text-shadow: 3px 3px 0 #000, 6px 6px 0 rgba(255, 255, 0, 0.3);
+            font-family: 'Press Start 2P', cursive;
+            z-index: 1000;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+        }
+
+        footer {
+            text-align: center;
+            color: #00ff00;
+            padding: 40px 20px;
+            font-size: 0.8em;
+            margin-top: 60px;
+            border-top: 2px solid #ffff00;
+        }
+
+        .retry-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .retry-button {
+            background: linear-gradient(135deg, #800020 0%, #B22222 100%);
+            border: 4px solid #FFD700;
+            padding: 25px 50px;
+            box-shadow: 0 0 30px rgba(128, 0, 32, 0.8), 0 0 60px rgba(255, 215, 0, 0.4);
+            cursor: pointer;
+            font-size: 2em;
+            letter-spacing: 3px;
+            text-shadow: 4px 4px 0 #000;
+            animation: pulse 2s infinite;
+            display: none;
+        }
+
+        .retry-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(128, 0, 32, 1), 0 0 80px rgba(255, 215, 0, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .danger-sign {
+            background: #FFFF00;
+            border: 8px solid #000;
+            padding: 30px;
+            display: inline-block;
+            margin: 20px auto;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+            display: none;
+            position: relative;
+        }
+
+        .danger-sign::before {
+            content: "⚠️";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+        }
+
+        .danger-sign p {
+            color: #000;
+            font-size: 1.5em;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-align: center;
+            margin: 0;
+        }
+
+        .round2-cards {
+            display: none;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .round2-card-wrapper {
+            perspective: 1000px;
+            width: 120px;
+            height: 180px;
+        }
+
+        .round2-flip-card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .round2-card-wrapper.flipped .round2-flip-card {
+            transform: rotateY(180deg);
+        }
+
+        .round2-flip-card-front, .round2-flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .round2-flip-card-front {
+            background: linear-gradient(135deg, #cc0000 0%, #ff0000 100%);
+            border: 2px solid #ffff00;
+            box-shadow: 
+                inset 0 0 10px rgba(255, 255, 0, 0.3),
+                0 0 20px rgba(255, 0, 0, 0.5),
+                0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .round2-flip-card-front::before {
+            content: "🂠";
+            font-size: 3em;
+            opacity: 0.8;
+        }
+
+        .round2-flip-card-back {
+            background: #FFF;
+            border: 2px solid #000;
+            transform: rotateY(180deg);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .round2-card-suit {
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-family: 'Bungee', cursive;
+        }
+
+        .round2-card-value {
+            font-size: 0.8em;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.2;
+            font-family: 'Bungee', cursive;
+        }
+
+        .burn-animation {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .burn-animation::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSIxNCIgeT0iMjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZjAwMDAiLz48cmVjdCB4PSIxMCIgeT0iMTYiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmZmMDAiLz48cmVjdCB4PSIxOCIgeT0iMTYiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmZmMDAiLz48cmVjdCB4PSIxNCIgeT0iMTIiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmFhMDAiLz48cmVjdCB4PSIxMCIgeT0iMjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZjAwMDAiLz48cmVjdCB4PSIxOCIgeT0iMjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZjAwMDAiLz48L3N2Zz4=');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0;
+            animation: burn 1s ease-out forwards;
+        }
+
+        @keyframes burn {
+            0% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.5); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.5); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(2); 
+            }
+        }
+
+        .hearts-animation::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 72px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCA3MiAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjZmYwMDAwIj48cmVjdCB4PSIxIiB5PSIzIiB3aWR0aD0iMiIgaGVpZ2h0PSIxIi8+PHJlY3QgeD0iMCIgeT0iNCIgd2lkdGg9IjQiIGhlaWdodD0iMSIvPjxyZWN0IHg9IjAiIHk9IjUiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiLz48cmVjdCB4PSIxIiB5PSI3IiB3aWR0aD0iMiIgaGVpZ2h0PSIxIi8+PHJlY3QgeD0iOSIgeT0iMyIgd2lkdGg9IjIiIGhlaWdodD0iMSIvPjxyZWN0IHg9IjgiIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjEiLz48cmVjdCB4PSI4IiB5PSI1IiB3aWR0aD0iNCIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iOSIgeT0iNyIgd2lkdGg9IjIiIGhlaWdodD0iMSIvPjxyZWN0IHg9IjE3IiB5PSIzIiB3aWR0aD0iMiIgaGVpZ2h0PSIxIi8+PHJlY3QgeD0iMTYiIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjEiLz48cmVjdCB4PSIxNiIgeT0iNSIgd2lkdGg9IjQiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE3IiB5PSI3IiB3aWR0aD0iMiIgaGVpZ2h0PSIxIi8+PC9nPjwvc3ZnPg==');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0;
+            animation: heartsFly 1.5s ease-out forwards;
+        }
+
+        @keyframes heartsFly {
+            0% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.5); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.2) translateY(-20px); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(1.5) translateY(-50px); 
+            }
+        }
+
+        .skull-icon {
+            font-size: 2em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header id="header">
+            <h1>CHOOSE YOUR PASSATEMPO</h1>
+            <div class="subtitle-box">
+                <p>SCEGLI LA PERSONA GIUSTA PER TE</p>
+            </div>
+        </header>
+
+        <div class="cards-container" id="cardsContainer">
+            <!-- Le carte verranno generate da JavaScript -->
+        </div>
+
+        <div class="retry-container">
+            <div class="retry-button" id="retryButton" onclick="startRound2()">
+                RIPROVAMO? <span class="skull-icon">💀</span>
+            </div>
+        </div>
+
+        <div id="finalMessage" class="final-message">BETTER LUCK NEXT TIME</div>
+
+        <div class="danger-sign" id="dangerSign">
+            <p>PRONTO?</p>
+        </div>
+
+        <div class="round2-cards" id="round2Cards">
+            <!-- Le carte del secondo round devo veni generate da JavaScript auglioo  -->
+        </div>
+
+        <footer>
+            <p>&copy; 2026 CHOOSE YOUR PASSATEMPO - IL GIOCO DELLA FORTUNA</p>
+        </footer>
+    </div>
+
+    <div class="jackpot-container" id="jackpotContainer">
+        <div class="jackpot-text">JACKPOT! 🎰💰🎰</div>
+    </div>
+
+    <script>
+        // Funzioni per generare suoni con Web Audio me cojons 
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playCardSound(cardType) {
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            if (cardType === 0) {
+                // JOKER - suono triste e strano con "wawa" di pianto
+                const frequencies = [200, 180, 220, 160, 240, 140];
+                frequencies.forEach((freq, i) => {
+                    osc.frequency.setValueAtTime(freq, now + i * 0.1);
+                });
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.setValueAtTime(0, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } else if (cardType === 1) {
+                // CUORE SPEZZATO - suono malinconico come me meow
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(330, now + 0.15);
+                osc.frequency.setValueAtTime(220, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.setValueAtTime(0, now + 0.45);
+                osc.start(now);
+                osc.stop(now + 0.45);
+            } else if (cardType === 2) {
+                // JACKPOT - suono brillante al flip, idk grazie copilot dell'aiuto
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.setValueAtTime(800, now + 0.05);
+                osc.frequency.setValueAtTime(1000, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.setValueAtTime(0, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } else if (cardType === 3) {
+                // RITORNO DEGLI EX - suono minaccioso
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.setValueAtTime(120, now + 0.1);
+                osc.frequency.setValueAtTime(100, now + 0.2);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.setValueAtTime(0, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (cardType === 4) {
+                // PRIMO AMORE - suono romantico ma triste
+                osc.frequency.setValueAtTime(523, now);
+                osc.frequency.setValueAtTime(415, now + 0.15);
+                osc.frequency.setValueAtTime(330, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.setValueAtTime(0, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (cardType === 5) {
+                // PRENDITI TEMPO - suono rilassante
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(494, now + 0.2);
+                osc.frequency.setValueAtTime(523, now + 0.4);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.setValueAtTime(0, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            }
+        }
+
+        function playJackpotSound() {
+            const now = audioContext.currentTime;
+            const notes = [523, 659, 784, 1047, 784, 659]; // Do, Mi, Sol, Do, Sol, Mi
+            
+            notes.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.frequency.setValueAtTime(freq, now + i * 0.15);
+                gain.gain.setValueAtTime(0.3, now + i * 0.15);
+                gain.gain.setValueAtTime(0, now + i * 0.15 + 0.35);
+                
+                osc.start(now + i * 0.15);
+                osc.stop(now + i * 0.15 + 0.35);
+            });
+        }
+
+        function playFinalSound() {
+            const now = audioContext.currentTime;
+            // Suono di slot machine che perde: beep discendenti ancofa grzie copilot perchè la storia dei suoni mi preoccupava
+            const frequencies = [800, 700, 600, 500, 400];
+            frequencies.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.frequency.setValueAtTime(freq, now + i * 0.2);
+                gain.gain.setValueAtTime(0.4, now + i * 0.2);
+                gain.gain.setValueAtTime(0, now + i * 0.2 + 0.15);
+                
+                osc.start(now + i * 0.2);
+                osc.stop(now + i * 0.2 + 0.15);
+            });
+        }
+
+        function playBackgroundMusic() {
+            const now = audioContext.currentTime;
+            // Melodia lenta ispirata a Zelda dungeon theme (più rilassata e di sottofondo)
+            const melody = [
+                { freq: 330, duration: 0.8 }, // E
+                { freq: 392, duration: 0.8 }, // G
+                { freq: 494, duration: 0.8 }, // B
+                { freq: 587, duration: 1.6 }, // D
+                { freq: 494, duration: 0.8 }, // B
+                { freq: 392, duration: 0.8 }, // G
+                { freq: 330, duration: 1.6 }, // E
+                { freq: 294, duration: 0.8 }, // D
+                { freq: 262, duration: 0.8 }, // C
+                { freq: 330, duration: 2.4 }  // E
+            ];
+            
+            let timeOffset = 0;
+            melody.forEach(note => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.frequency.setValueAtTime(note.freq, now + timeOffset);
+                gain.gain.setValueAtTime(0.03, now + timeOffset); // Volume più basso
+                gain.gain.setValueAtTime(0, now + timeOffset + note.duration);
+                
+                osc.start(now + timeOffset);
+                osc.stop(now + timeOffset + note.duration);
+                
+                timeOffset += note.duration;
+            });
+            
+            // Ripeti ogni 10 secondi
+            setTimeout(playBackgroundMusic, 10000);
+        }
+
+        const cardOptions = [
+            {
+                title: "PERDITA DI TEMPO",
+                imageSrc: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSI4IiB5PSI4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IiNmZmZmMDAiLz48cmVjdCB4PSIxNCIgeT0iMTIiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiMwMDAwMDAiLz48cmVjdCB4PSIxNCIgeT0iMTgiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDAwMDAiLz48cmVjdCB4PSIxNCIgeT0iMjAiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNmZjAwMDAiLz48cmVjdCB4PSIxNiIgeT0iMjAiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNmZjAwMDAiLz48cmVjdCB4PSIxMCIgeT0iNiIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzAwMDAwMCIvPjxyZWN0IHg9IjE4IiB5PSI2IiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwMDAwIi8+PC9zdmc+",
+                emojiClass: "emoji-crying",
+                description:"oh no! un altro appuntamento andato male",
+                symbol: "J♦"
+            },
+            {
+                title: "NON CORRISPOSTO",
+                imageSrc: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjZmYwMDAwIj48cmVjdCB4PSIxNCIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIvPjxyZWN0IHg9IjEwIiB5PSIxMiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjQiLz48cmVjdCB4PSI2IiB5PSIxNiIgd2lkdGg9IjgiIGhlaWdodD0iNCIvPjxyZWN0IHg9IjE4IiB5PSIxNiIgd2lkdGg9IjgiIGhlaWdodD0iNCIvPjxyZWN0IHg9IjEwIiB5PSIyMCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjQiLz48cmVjdCB4PSIxNCIgeT0iMjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiLz48L2c+PGcgZmlsbD0iI2ZmZmZmZiI+PHJlY3QgeD0iMTYiIHk9IjEyIiB3aWR0aD0iNCIgaGVpZ2h0PSIxNiIvPjwvZz48L3N2Zz4=",
+                emojiClass: "emoji-breaking",
+                description: "Persona che ti sceglie\nma non viene scelta",
+                symbol: "A♥"
+            },
+            {
+                title: "AMORE INTENSO",
+                imageSrc: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSIxNCIgeT0iMjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZjAwMDAiLz48cmVjdCB4PSIxMCIgeT0iMTYiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmZmMDAiLz48cmVjdCB4PSIxOCIgeT0iMTYiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmZmMDAiLz48cmVjdCB4PSIxNCIgeT0iMTIiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmFhMDAiLz48cmVjdCB4PSIxMCIgeT0iMjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZjAwMDAiLz48cmVjdCB4PSIxOCIgeT0iMjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZjAwMDAiLz48L3N2Zz4=",
+                emojiClass: "",
+                description: "Amore breve ma intenso\nche hai idealizzato\ne ti porti dietro per sempre!",
+                symbol: "3♥"
+            }
+        ];
+
+        function createCards() {
+            const container = document.getElementById('cardsContainer');
+            
+            cardOptions.forEach((option, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'card-wrapper';
+                
+                wrapper.innerHTML = `
+                    <div class="flip-card">
+                        <div class="flip-card-front"></div>
+                        <div class="flip-card-back">
+                            <div class="card-title">${option.title}</div>
+                            <div class="card-emoji ${option.emojiClass}"><img src="${option.imageSrc}" alt="emoji" style="width: 32px; height: 32px;">${index === 0 ? '<div class="tear"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAxNiAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSI2IiB5PSIwIiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwMGZmIi8+PHJlY3QgeD0iNCIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNCIgZmlsbD0iIzAwMDBmZiIvPjxyZWN0IHg9IjIiIHk9IjgiIHdpZHRoPSIxMiIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwMGZmIi8+PHJlY3QgeD0iNCIgeT0iMTIiIHdpZHRoPSI4IiBoZWlnaHQ9IjQiIGZpbGw9IiMwMDAwZmYiLz48cmVjdCB4PSI2IiB5PSIxNiIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzAwMDBmZiIvPjxyZWN0IHg9IjgiIHk9IjIwIiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwMGZmIi8+PC9zdmc+" alt="tear" style="width: 16px; height: 24px;"></div><div class="tear" style="animation-delay: 0.5s;"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAxNiAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSI2IiB5PSIwIiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwMGZmIi8+PHJlY3QgeD0iNCIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNCIgZmlsbD0iIzAwMDBmZiIvPjxyZWN0IHg9IjIiIHk9IjgiIHdpZHRoPSIxMiIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwMGZmIi8+PHJlY3QgeD0iNCIgeT0iMTIiIHdpZHRoPSI4IiBoZWlnaHQ9IjQiIGZpbGw9IiMwMDAwZmYiLz48cmVjdCB4PSI2IiB5PSIxNiIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzAwMDBmZiIvPjxyZWN0IHg9IjgiIHk9IjIwIiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwMGZmIi8+PC9zdmc+" alt="tear" style="width: 16px; height: 24px;"></div>' : ''}</div>
+                            <div class="card-description">${option.description}</div>
+                        </div>
+                    </div>
+                `;
+                
+                wrapper.addEventListener('click', () => toggleCard(wrapper, index));
+                container.appendChild(wrapper);
+            });
+        }
+
+        function playEvilLaugh() {
+            const now = audioContext.currentTime;
+            // Suono di risate distorte "ha-ha"
+            const laughPattern = [300, 350, 400, 350, 300];
+            
+            laughPattern.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.frequency.setValueAtTime(freq, now + i * 0.1);
+                osc.frequency.setValueAtTime(freq * 0.8, now + i * 0.1 + 0.05);
+                gain.gain.setValueAtTime(0.4, now + i * 0.1);
+                gain.gain.setValueAtTime(0, now + i * 0.1 + 0.08);
+                
+                osc.start(now + i * 0.1);
+                osc.stop(now + i * 0.1 + 0.08);
+            });
+        }
+
+        let flippedCards = 0;
+        const totalCards = 3;
+
+        function toggleCard(wrapper, index) {
+            if (wrapper.classList.contains('flipped')) return; // Non permettere di rigirare
+            
+            wrapper.classList.toggle('flipped');
+            playCardSound(index);
+            flippedCards++;
+            
+            // Trigger jackpot solo sulla terza carta (AMORE INTENSO)
+            if (wrapper.classList.contains('flipped') && index === 2) {
+                triggerJackpot();
+            }
+            
+            // Dopo aver girato tutte le carte, mostra il pulsante retry
+            if (flippedCards === totalCards) {
+                setTimeout(() => {
+                    document.getElementById('retryButton').style.display = 'inline-block';
+                }, 1000);
+            }
+        }
+
+        function startRound2() {
+            playEvilLaugh();
+            
+            // Cambia colore pagina in viola oscuro
+            document.body.style.background = '#2D1B69';
+            
+            // Nasconde gli elementi del primo round
+            document.getElementById('cardsContainer').style.display = 'none';
+            document.getElementById('retryButton').style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            
+            // Mostra l'insegna di pericolo
+            document.getElementById('dangerSign').style.display = 'inline-block';
+            
+            // Dopo 2 secondi, mostra le nuove carte
+            setTimeout(() => {
+                document.getElementById('dangerSign').style.display = 'none';
+                createRound2Cards();
+                document.getElementById('round2Cards').style.display = 'flex';
+            }, 2000);
+        }
+
+        function createRound2Cards() {
+            const container = document.getElementById('round2Cards');
+            const round2Options = [
+                {
+                    suit: "♠",
+                    value: "IL RITORNO DEGLI EX",
+                    burnType: "fire"
+                },
+                {
+                    suit: "♥",
+                    value: "IL TUO PRIMO AMORE",
+                    burnType: "hearts"
+                },
+                {
+                    suit: "♦",
+                    value: "PRENDITI DEL TEMPO PER TE: BASTA",
+                    burnType: "none"
+                }
+            ];
+            
+            round2Options.forEach((option, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'round2-card-wrapper';
+                
+                wrapper.innerHTML = `
+                    <div class="round2-flip-card">
+                        <div class="round2-flip-card-front"></div>
+                        <div class="round2-flip-card-back">
+                            <div class="round2-card-suit">${option.suit}</div>
+                            <div class="round2-card-value">${option.value}</div>
+                        </div>
+                    </div>
+                `;
+                
+                wrapper.addEventListener('click', () => revealRound2Card(wrapper, index, option.burnType));
+                container.appendChild(wrapper);
+            });
+        }
+
+        function revealRound2Card(wrapper, index, burnType) {
+            if (wrapper.classList.contains('flipped')) return;
+            
+            wrapper.classList.add('flipped');
+            playCardSound(index + 3); // Offset per suoni diversi
+            
+            if (index === 2) {
+                setTimeout(() => {
+                    document.getElementById('finalMessage').style.display = 'block';
+                    playFinalSound();
+                    setTimeout(() => {
+                        document.getElementById('finalMessage').style.display = 'none';
+                    }, 10000);
+                }, 3000);
+            }
+            
+            // Applica animazione dopo un breve delay
+            setTimeout(() => {
+                const backCard = wrapper.querySelector('.round2-flip-card-back');
+                
+                if (burnType === 'fire') {
+                    backCard.classList.add('burn-animation');
+                    setTimeout(() => wrapper.style.opacity = '0', 1000);
+                } else if (burnType === 'hearts') {
+                    backCard.classList.add('hearts-animation');
+                    setTimeout(() => wrapper.style.opacity = '0', 1500);
+                }
+                // "none" non ha animazione
+            }, 600); // Aspetta che la carta si giri completamente
+        }
+
+        function triggerJackpot() {
+            playJackpotSound();
+            const jackpotContainer = document.getElementById('jackpotContainer');
+            jackpotContainer.classList.add('active');
+            createConfetti();
+            
+            setTimeout(() => {
+                jackpotContainer.classList.remove('active');
+            }, 3000);
+        }
+
+        function createConfetti() {
+            const confettiCount = 50;
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.textContent = ['🃏', '💰', '🎰', '⭐', '🎯'][Math.floor(Math.random() * 5)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.fontSize = Math.random() * 30 + 20 + 'px';
+                confetti.style.opacity = Math.random() * 0.7 + 0.3;
+                
+                document.body.appendChild(confetti);
+                
+                const duration = Math.random() * 2 + 2;
+                const xMove = (Math.random() - 0.5) * 200;
+                
+                confetti.animate([
+                    { transform: 'translateY(0) translateX(0)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight + 100}px) translateX(${xMove}px)`, opacity: 0 }
+                ], {                  duration: duration * 1000,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                });
+                
+                setTimeout(() => confetti.remove(), duration * 1000);
+            }
+        }
+
+        // Inizializza le carte al caricamento
+        window.addEventListener('DOMContentLoaded', () => {
+            createCards();
+            playBackgroundMusic();
+        });
+    </script>
+</body>
+</html>
